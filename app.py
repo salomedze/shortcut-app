@@ -24,7 +24,7 @@ def log_to_notion(question: str, answer: str):
 
 load_dotenv()
 
-MAX_QUESTIONS = 10
+MAX_QUESTIONS = 5
 
 st.set_page_config(
     page_title="Shortcut — არქიტექტორის ასისტენტი",
@@ -65,7 +65,7 @@ with st.sidebar:
 
     st.divider()
     remaining = max(0, MAX_QUESTIONS - st.session_state.question_count)
-    st.info(f"აპლიკაცია მუშაობს სატესტო რეჟიმში. თითოეულ მომხმარებელს შეუძლია დღეში მაქსიმუმ 10 შეკითხვა დასვას. დარჩენილია: **{remaining}/{MAX_QUESTIONS}**")
+    st.info(f"აპლიკაცია მუშაობს სატესტო რეჟიმში. თითოეულ მომხმარებელს შეუძლია დღეში მაქსიმუმ 5 შეკითხვა დასვას. დარჩენილია: **{remaining}/{MAX_QUESTIONS}**")
 
     st.divider()
     if st.button("🗑️ საუბრის გასუფთავება"):
