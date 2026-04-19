@@ -83,24 +83,16 @@ if prompt:
         st.markdown(prompt)
 
     with st.chat_message("assistant", avatar="⚡"):
-        if not has_documents():
-            response_text = (
-                "⚠️ **დოკუმენტები არ არის ატვირთული.**\n\n"
-                "გთხოვთ, მარცხენა პანელიდან ატვირთოთ კანონმდებლობის PDF ფაილები, "
-                "შემდეგ კი კვლავ დასვით კითხვა."
-            )
-            st.markdown(response_text)
-        else:
-            with st.spinner("ვეძებ..."):
-                try:
-                    history = [
-                        {"role": m["role"], "content": m["content"]}
-                        for m in st.session_state.messages
-                    ]
-                    response_text = chat_with_history(history)
-                    st.markdown(response_text)
-                except Exception as e:
-                    response_text = f"⚠️ შეცდომა: {str(e)}"
-                    st.error(response_text)
+        with st.spinner("ვეძებ..."):
+            try:
+                history = [
+                    {"role": m["role"], "content": m["content"]}
+                    for m in st.session_state.messages
+                ]
+                response_text = chat_with_history(history)
+                st.markdown(response_text)
+            except Exception as e:
+                response_text = f"⚠️ შეცდომა: {str(e)}"
+                st.error(response_text)
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})

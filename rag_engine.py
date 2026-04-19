@@ -823,13 +823,15 @@ def chat_with_history(messages: list[dict]) -> str:
     Send full conversation history to Claude with retrieved document context.
     messages: list of {"role": "user"/"assistant", "content": "..."}
     """
-    retriever = get_retriever()
-
-    # Use the last user message to search for relevant document sections
     last_user_message = next(
         (m["content"] for m in reversed(messages) if m["role"] == "user"), ""
     )
-    nodes = retriever.retrieve(last_user_message)
+
+    try:
+        retriever = get_retriever()
+        nodes = retriever.retrieve(last_user_message)
+    except Exception:
+        nodes = []
 
     # Keyword lookup: zone codes + important topic keywords
     zone_codes = extract_zone_codes(last_user_message)
@@ -855,8 +857,14 @@ def chat_with_history(messages: list[dict]) -> str:
             topic_keywords.extend(keywords)
 
     if zone_codes or topic_keywords:
-        chroma_client = chromadb.PersistentClient(path="./chroma_db")
-        col = chroma_client.get_collection("georgian_regulations")
+        try:
+            chroma_client = chromadb.PersistentClient(path="./chroma_db")
+            col = chroma_client.get_collection("georgian_regulations")
+        except Exception:
+            zone_codes = []
+            topic_keywords = []
+            col = None
+    if zone_codes or topic_keywords:
         existing_ids = {n.node_id for n in nodes}
         all_results = col.get(include=["documents", "metadatas"])
 
