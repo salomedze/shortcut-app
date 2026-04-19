@@ -13,8 +13,8 @@ def log_to_notion(question: str, answer: str):
         notion.pages.create(
             parent={"database_id": NOTION_DATABASE_ID},
             properties={
-                "Date": {"date": {"start": datetime.utcnow().isoformat()}},
-                "Question": {"title": [{"text": {"content": question[:2000]}}]},
+                "Date": {"title": [{"text": {"content": datetime.utcnow().strftime("%Y-%m-%d %H:%M")}}]},
+                "Question": {"rich_text": [{"text": {"content": question[:2000]}}]},
                 "Answer": {"rich_text": [{"text": {"content": answer[:2000]}}]},
             },
         )
