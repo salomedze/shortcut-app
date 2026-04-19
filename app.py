@@ -1,7 +1,25 @@
 import os
+from datetime import datetime
 import streamlit as st
 from dotenv import load_dotenv
+from notion_client import Client as NotionClient
 from rag_engine import chat_with_history, has_documents
+
+NOTION_DATABASE_ID = "3470ea2ca58980e1b02ce839467a702e"
+
+def log_to_notion(question: str, answer: str):
+    try:
+        notion = NotionClient(auth=os.getenv("NOTION_API_KEY"))
+        notion.pages.create(
+            parent={"database_id": NOTION_DATABASE_ID},
+            properties={
+                "Date": {"date": {"start": datetime.utcnow().isoformat()}},
+                "Question": {"title": [{"text": {"content": question[:2000]}}]},
+                "Answer": {"rich_text": [{"text": {"content": answer[:2000]}}]},
+            },
+        )
+    except Exception:
+        pass
 
 load_dotenv()
 
@@ -96,3 +114,4 @@ if prompt:
                 st.error(response_text)
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})
+        log_to_notion(prompt, response_text)
