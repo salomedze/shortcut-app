@@ -1,0 +1,17 @@
+# API keys — never commit these
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# ChromaDB — commit this so Streamlit Cloud has the indexed documents
+# chroma_db/   ← intentionally NOT ignored
+
+# OS
+.DS_Store
+Thumbs.db
