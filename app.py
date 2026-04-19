@@ -1,4 +1,5 @@
 import os
+import traceback
 from datetime import datetime
 import streamlit as st
 from dotenv import load_dotenv
@@ -112,6 +113,7 @@ if prompt:
             except Exception as e:
                 response_text = f"⚠️ შეცდომა: {str(e)}"
                 st.error(response_text)
+                print(traceback.format_exc())
 
         st.session_state.messages.append({"role": "assistant", "content": response_text})
         log_to_notion(prompt, response_text)

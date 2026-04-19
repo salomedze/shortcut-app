@@ -902,30 +902,27 @@ def chat_with_history(messages: list[dict]) -> str:
                 added += 1
     context = "\n\n---\n\n".join([n.get_content() for n in nodes])
 
-    # Inject document context into the system prompt
-    system_with_context = (
-        SYSTEM_PROMPT
-        + f"\n\nშემდეგი დოკუმენტების ამონარიდები გამოიყენე პასუხისთვის:\n\n{context}"
-    )
-
     # Only keep last 6 messages (3 turns) to limit token cost
     trimmed_messages = messages[-6:] if len(messages) > 6 else messages
+
+    system_blocks = [
+        {
+            "type": "text",
+            "text": SYSTEM_PROMPT,
+            "cache_control": {"type": "ephemeral"},
+        },
+    ]
+    if context:
+        system_blocks.append({
+            "type": "text",
+            "text": f"\n\nშემდეგი დოკუმენტების ამონარიდები გამოიყენე პასუხისთვის:\n\n{context}",
+        })
 
     client = anthropic.Anthropic(api_key=get_api_key())
     response = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=1500,
-        system=[
-            {
-                "type": "text",
-                "text": SYSTEM_PROMPT,
-                "cache_control": {"type": "ephemeral"},
-            },
-            {
-                "type": "text",
-                "text": f"\n\nშემდეგი დოკუმენტების ამონარიდები გამოიყენე პასუხისთვის:\n\n{context}",
-            },
-        ],
+        max_tokens=2000,
+        system=system_blocks,
         messages=trimmed_messages,
     )
     return response.content[0].text
