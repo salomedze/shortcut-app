@@ -912,7 +912,7 @@ def chat_with_history(messages: list[dict]) -> str:
 
     client = anthropic.Anthropic(api_key=get_api_key())
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-haiku-4-5-20251001",
         max_tokens=1500,
         system=[
             {
