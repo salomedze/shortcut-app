@@ -1,4 +1,8 @@
 import os
+import nltk
+nltk.data.path.append("/tmp/nltk_data")
+nltk.download("punkt_tab", download_dir="/tmp/nltk_data", quiet=True)
+nltk.download("punkt", download_dir="/tmp/nltk_data", quiet=True)
 from dotenv import load_dotenv
 from llama_index.core import VectorStoreIndex, Settings
 from llama_index.vector_stores.chroma import ChromaVectorStore
