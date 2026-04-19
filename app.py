@@ -1,7 +1,6 @@
 import os
 import streamlit as st
 from dotenv import load_dotenv
-from ingest import ingest_documents
 from rag_engine import chat_with_history, has_documents
 
 load_dotenv()
