@@ -80,7 +80,7 @@ if "messages" not in st.session_state:
 for message in st.session_state.messages:
     avatar = "👤" if message["role"] == "user" else "⚡"
     with st.chat_message(message["role"], avatar=avatar):
-        st.markdown(message["content"])
+        st.markdown(message["content"], unsafe_allow_html=True)
 
 limit_reached = st.session_state.question_count >= MAX_QUESTIONS
 
@@ -109,7 +109,7 @@ if prompt:
                     for m in st.session_state.messages
                 ]
                 response_text = chat_with_history(history)
-                st.markdown(response_text)
+                st.markdown(response_text, unsafe_allow_html=True)
             except Exception as e:
                 response_text = f"⚠️ შეცდომა: {str(e)}"
                 st.error(response_text)
