@@ -4,7 +4,7 @@ from datetime import datetime
 import streamlit as st
 from dotenv import load_dotenv
 from notion_client import Client as NotionClient
-from rag_engine import chat_with_history, has_documents
+from rag_engine import chat_with_history
 
 NOTION_DATABASE_ID = "3470ea2ca58980e1b02ce839467a702e"
 

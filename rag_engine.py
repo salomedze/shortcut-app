@@ -1,8 +1,4 @@
 import os
-import nltk
-nltk.data.path.append("/tmp/nltk_data")
-nltk.download("punkt_tab", download_dir="/tmp/nltk_data", quiet=True)
-nltk.download("punkt", download_dir="/tmp/nltk_data", quiet=True)
 from dotenv import load_dotenv
 import anthropic
 
@@ -9618,54 +9614,11 @@ def get_api_key():
     return os.getenv("ANTHROPIC_API_KEY")
 
 
-def get_retriever():
-    """Return a retriever that fetches relevant document chunks."""
-    embed_model = HuggingFaceEmbedding(
-        model_name="intfloat/multilingual-e5-large"
-    )
-    Settings.embed_model = embed_model
-
-    chroma_client = chromadb.PersistentClient(path="./chroma_db")
-    chroma_collection = chroma_client.get_or_create_collection("georgian_regulations")
-    vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-    index = VectorStoreIndex.from_vector_store(vector_store)
-    return index.as_retriever(similarity_top_k=8)
-
-
-def extract_zone_codes(text: str) -> list[str]:
-    """Extract zone codes from user message in any format.
-    Catches: სზ-4, სზ 4, სზ4, საცხოვრებელი ზონა 4, ზონა 4 etc.
-    Always normalizes to dash format (სზ-4)."""
-    import re
-    codes = set()
-
-    # Direct code formats: სზ-4, სზ 4, სზ4
-    for m in re.findall(r'([\u10D0-\u10FF]{1,4})[\s\-]?(\d+)', text):
-        codes.add(f"{m[0]}-{m[1]}")
-
-    # Written out: საცხოვრებელი ზონა 4, საცხოვრებელ ზონა 4-ზე etc.
-    zone_map = {
-        'საცხოვრებელ': 'სზ',
-        'საზოგადოებრივ': 'სსზ',
-        'სატრანსპორტო': 'ტზ',
-        'შერეულ': 'შზ',
-        'ინდუსტრიულ': 'იზ',
-        'სპეციალურ': 'სპზ',
-    }
-    for word, prefix in zone_map.items():
-        for m in re.findall(word + r'[\u10D0-\u10FF]*\s+ზონა[\u10D0-\u10FF\s]*(\d+)', text):
-            codes.add(f"{prefix}-{m}")
-
-    return list(codes)
-
-
 def chat_with_history(messages: list[dict]) -> str:
     """
     Send full conversation history to Claude using system prompt only (no RAG).
     messages: list of {"role": "user"/"assistant", "content": "..."}
     """
-    context = ""
-
     # Only keep last 6 messages (3 turns) to limit token cost
     trimmed_messages = messages[-6:] if len(messages) > 6 else messages
 
@@ -9680,11 +9633,6 @@ def chat_with_history(messages: list[dict]) -> str:
             "cache_control": {"type": "ephemeral"},
         },
     ]
-    if context:
-        system_blocks.append({
-            "type": "text",
-            "text": f"\n\nშემდეგი დოკუმენტების ამონარიდები გამოიყენე პასუხისთვის:\n\n{context}",
-        })
 
     client = anthropic.Anthropic(api_key=get_api_key())
     response = client.messages.create(
@@ -9695,12 +9643,3 @@ def chat_with_history(messages: list[dict]) -> str:
     )
     return response.content[0].text
 
-
-def has_documents():
-    """Check if any documents have been indexed."""
-    try:
-        chroma_client = chromadb.PersistentClient(path="./chroma_db")
-        collection = chroma_client.get_or_create_collection("georgian_regulations")
-        return collection.count() > 0
-    except Exception:
-        return False
