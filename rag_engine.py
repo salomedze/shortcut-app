@@ -9658,6 +9658,11 @@ def build_dynamic_prompt(user_message: str) -> str:
     selected = [core]
 
     msg_lower = user_message.lower()
+    # Normalize zone/decree/article codes so "სზ 1", "სზ1" and "სზ-1" all
+    # match the same (hyphenated) trigger terms - users often type a space
+    # or nothing where the file's triggers always use a hyphen. This is the
+    # same idea the old, never-wired-in extract_zone_codes() was for.
+    msg_lower = re.sub(r'([ა-ჿ]{1,4})\s?(\d+)', r'\1-\2', msg_lower)
 
     for part in parts[1:]:
         # Extract quoted terms from trigger line (first line of part)
